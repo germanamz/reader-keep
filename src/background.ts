@@ -75,7 +75,6 @@ const startContextMenu = async () => {
 };
 
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
-  console.log(info, tab);
   if (!tab?.id) {
     return;
   }
