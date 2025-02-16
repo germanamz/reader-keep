@@ -43,7 +43,7 @@ const createLog = async (readId: number, pageData: PageData) => {
     ...logData,
   } as ReadLog;
 };
-const startContextMenu = async () => {
+const drawContextMenu = async () => {
   await browser.contextMenus.removeAll();
 
   const reads = await db.reads.toArray();
@@ -93,8 +93,22 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     const read = await createRead(pageData);
     await createLog(read.id, pageData);
 
-    await startContextMenu();
+    await drawContextMenu();
     return;
+  }
+});
+
+browser.runtime.onMessage.addListener(async (req) => {
+  const action = req as Action;
+
+  if (action.type === ACTIONS.DELETE_READ) {
+    const read = action.payload;
+
+    await db.readLogs.where('readId').equals(read.id).delete();
+
+    db.reads.delete(read.id);
+
+    await drawContextMenu();
   }
 });
 
@@ -102,5 +116,5 @@ browser.runtime.onInstalled.addListener(async () => {
   await chrome.sidePanel.setPanelBehavior({
     openPanelOnActionClick: true,
   });
-  await startContextMenu();
+  await drawContextMenu();
 });
