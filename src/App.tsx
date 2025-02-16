@@ -21,15 +21,14 @@ function App() {
   const {reads, logs} = data;
 
   return (
-    <div className="p-4">
+    <ul className="menu">
       {reads.map((read, i) => (
-        <div key={`read-${read.id}-${nanoid()}`}>
-          <h3>{read.name}</h3>
+        <li key={`read-${read.id}-${nanoid()}`}>
+          <a>{read.name}</a>
           <ul>
             {logs[i].map((log) => (
               <li
                 key={`log-${read.id}-${log.id}-${nanoid()}`}
-                className="cursor-pointer hover:underline"
                 onClick={async () => {
                   const tab = await browser.tabs.create({
                     url: log.url,
@@ -44,13 +43,13 @@ function App() {
                   });
                 }}
               >
-                {log.label} {formatTimestamp(log.timestamp)}
+                <a>{log.label} {formatTimestamp(log.timestamp)}</a>
               </li>
             ))}
           </ul>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
