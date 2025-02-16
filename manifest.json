@@ -3,7 +3,22 @@
   "description": "Just keep track of your online reads",
   "version": "0.0",
   "manifest_version": 3,
-  "action": {
-    "default_popup": "index.html"
-  }
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "background": {
+    "service_worker": "src/background.ts"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.ts"]
+    }
+  ],
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "scripting",
+    "sidePanel"
+  ]
 }
