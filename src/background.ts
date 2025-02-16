@@ -74,52 +74,34 @@ const startContextMenu = async () => {
   });
 };
 
+browser.contextMenus.onClicked.addListener(async (info, tab) => {
+  console.log(info, tab);
+  if (!tab?.id) {
+    return;
+  }
+
+  if (info.parentMenuItemId === ROOT_MENU_ITEMS.addReadLog) {
+    const readId = Number((info.menuItemId as string).replace('read-', ''));
+    const pageData = await getPageData(tab.id);
+
+    await createLog(readId, pageData);
+
+    return;
+  }
+
+  if (info.menuItemId === ROOT_MENU_ITEMS.keepRead) {
+    const pageData = await getPageData(tab.id);
+    const read = await createRead(pageData);
+    await createLog(read.id, pageData);
+
+    await startContextMenu();
+    return;
+  }
+});
+
 browser.runtime.onInstalled.addListener(async () => {
   await chrome.sidePanel.setPanelBehavior({
     openPanelOnActionClick: true,
   });
   await startContextMenu();
-
-  browser.contextMenus.onClicked.addListener(async (info, tab) => {
-    if (!tab?.id) {
-      return;
-    }
-
-    if (info.parentMenuItemId === ROOT_MENU_ITEMS.addReadLog) {
-      const readId = Number((info.menuItemId as string).replace('read-', ''));
-      const pageData = await getPageData(tab.id);
-
-      await createLog(readId, pageData);
-
-      return;
-    }
-
-    if (info.menuItemId === ROOT_MENU_ITEMS.keepRead) {
-      const pageData = await getPageData(tab.id);
-      const read = await createRead(pageData);
-      await createLog(read.id, pageData);
-
-      await startContextMenu();
-      return;
-    }
-  });
-
-  // browser.runtime.onMessage.addListener(async (req) => {
-  //   const action = req as Action;
-  //
-  //   console.log(action);
-  //
-  //   if (action.type === ACTIONS.OPEN_LOG) {
-  //     const tab = await browser.tabs.create({
-  //       url: action.payload.url,
-  //       active: true,
-  //     });
-  //
-  //     await onTabComplete(tab, async () => {
-  //       await openLog(tab.id!, action.payload);
-  //     });
-  //
-  //     return;
-  //   }
-  // });
 });
